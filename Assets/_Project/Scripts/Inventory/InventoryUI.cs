@@ -1,0 +1,59 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Serialization;
+using VContainer;
+
+namespace _Project.Scripts.Inventory
+{
+    public class InventoryUI : MonoBehaviour
+    {
+        [SerializeField] private List<SlotUI> slots;
+        public event System.Action<int> OnSelected;
+        private Inventory _inventory;
+
+        [Inject]
+        public void Construct(Inventory inventory)
+        {
+            _inventory = inventory;
+        }
+
+
+        public void OnEnable()
+        {
+            _inventory.OnItemAdded += AddSlot;
+            foreach (var slot in slots)
+            {
+                slot.OnSelected += Selected;
+            }
+        }
+
+        public void OnDisable()
+        {
+            _inventory.OnItemAdded -= AddSlot;
+            foreach (var slot in slots)
+            {
+                slot.OnSelected -= Selected;
+            }
+        }
+
+        public void Selected()
+        {
+            //Тут визуальная логика
+            //  OnSelected?.Invoke();
+        }
+
+        public void AddSlot(InventorySlot slot)
+        {
+            foreach (var slotUI in slots)
+            {
+                if (slotUI.IsBusy == false)
+                {
+                    slotUI.Render(slot);
+                    break;
+                }
+            }
+        }
+    }
+}
+  
+
