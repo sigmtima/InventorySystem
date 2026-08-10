@@ -8,9 +8,14 @@ namespace _Project.Scripts.Inventory.Items
         [SerializeField] private ItemData data;
         [SerializeField] private int count;
         
-        public ItemData Collect()
+        public ItemData CollectData()
         {
             return data;
+        }
+
+        public int CollectCount()
+        {
+            return count;
         }
     }
 }

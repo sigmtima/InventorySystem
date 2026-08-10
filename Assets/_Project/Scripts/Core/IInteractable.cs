@@ -19,6 +19,7 @@ namespace _Project.Scripts.Core
 
     public interface ICollectible
     {
-         ItemData Collect(); 
+         ItemData CollectData(); 
+         int CollectCount();
     }
 }

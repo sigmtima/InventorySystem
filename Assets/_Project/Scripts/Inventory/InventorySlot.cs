@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace _Project.Scripts.Inventory
@@ -8,6 +9,7 @@ namespace _Project.Scripts.Inventory
         public int Count { get; private set; }
         
         public bool IsEmpty { get; private set; }
+        public event Action<int> OnSlotChanged;
 
         public void Init(ItemData itemData, int count)
         {
@@ -15,11 +17,17 @@ namespace _Project.Scripts.Inventory
             Count = count;
         }
         
-        public void Add(int amount)
-        {
-            Count += amount;
-        }
+        public int Add(int amount)
+            {
+                int total = Count + amount;
+                int max = ItemData.maxStack;
 
+                Count = Math.Min(total, max); 
+                OnSlotChanged?.Invoke(Count);
+                return Math.Max(0, total - max); 
+               
+            }
+            
         public void Remove(int amount)
         {
             Count -= amount;

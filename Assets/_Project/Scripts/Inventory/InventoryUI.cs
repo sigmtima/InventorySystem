@@ -42,13 +42,13 @@ namespace _Project.Scripts.Inventory
             //  OnSelected?.Invoke();
         }
 
-        public void AddSlot(InventorySlot slot)
+        public void AddSlot(InventorySlot slot, int count)
         {
             foreach (var slotUI in slots)
             {
                 if (slotUI.IsBusy == false)
                 {
-                    slotUI.Render(slot);
+                    slotUI.Initialize(slot, count);
                     break;
                 }
             }

@@ -12,7 +12,7 @@ namespace _Project.Scripts.Player
         [SerializeField] private float viewRadius;
         [SerializeField] private LayerMask interactLayer;
         [SerializeField, Range(0f, 180f)] private float interactAngle = 60f;
-        public event System.Action<ItemData> OnCollect;
+        public event System.Action<ItemData, int> OnCollect;
         private InputManager _inputManager;
 
         [Inject]
@@ -70,8 +70,9 @@ namespace _Project.Scripts.Player
 
             if (closestInteractable != null)
             {
-                ItemData data = closestInteractable.Collect();
-                OnCollect?.Invoke(data);
+                ItemData data = closestInteractable.CollectData();
+                int count = closestInteractable.CollectCount();
+                OnCollect?.Invoke(data, count);
             }
         }
     }

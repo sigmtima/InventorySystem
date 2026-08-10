@@ -30,9 +30,9 @@ namespace _Project.Scripts.Inventory
             _playerInteractController.OnCollect -= AddItem;
         }
 
-        public void AddItem(ItemData itemData)
+        public void AddItem(ItemData itemData, int count)
         {
-            _inventory.AddItem(itemData);
+            _inventory.AddItem(itemData, count);
         }
         
         public void UseItem(int slotIndex)

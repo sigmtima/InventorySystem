@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace _Project.Scripts.Inventory
 {
@@ -7,7 +8,8 @@ namespace _Project.Scripts.Inventory
        public int itemID;
        public Sprite itemIcon;
        public enum  ItemType {Weapon, Food, Resources}
-       public ItemType itemType;
+       public ItemType itemType; 
+       public int maxStack;
        [SerializeReference]
        public ItemBehavior behavior;
     }
