@@ -11,10 +11,13 @@ namespace _Project.Scripts.Inventory
         private Inventory _inventory;
         private ItemUseContext _itemUseContext;
         private PlayerInteractController _playerInteractController;
+        private EquipmentController _equipmentController;
 
         [Inject]
-        public void Construct(Inventory inventory, ItemUseContext itemUseContext,  PlayerInteractController playerInteractController)
+        public void Construct(Inventory inventory, ItemUseContext itemUseContext,
+            PlayerInteractController playerInteractController, EquipmentController equipmentController)
         {
+            _equipmentController = equipmentController;
             _inventory = inventory;
             _itemUseContext = itemUseContext;
             _playerInteractController = playerInteractController;
@@ -23,31 +26,50 @@ namespace _Project.Scripts.Inventory
         public void OnEnable()
         {
             _playerInteractController.OnCollect += AddItem;
+            _equipmentController.OnEquipped += UseItem;
         }
 
         public void OnDisable()
         {
             _playerInteractController.OnCollect -= AddItem;
+            _equipmentController.OnEquipped -= UseItem;
+
         }
 
         public void AddItem(ItemData itemData, int count)
         {
             _inventory.AddItem(itemData, count);
         }
-        
-        public void UseItem(int slotIndex)
+
+        public void UseItem(SlotUI slotUI)
         {
-            var  slot = _inventory.GetItem(slotIndex);
-            if (slot.Count > 0)
+            if (slotUI != null)
             {
-                slot.ItemData.behavior.Use(_itemUseContext, slot.ItemData);
-                    slot.Remove(1);
-                    if (slot.IsEmpty)
+                InventorySlot slot = slotUI.InventorySlot;
+                if (slot != null)
+                {
+                    if (slot.Count > 0)
                     {
-                        _inventory.RemoveItem(slot);
+                        if(slot.ItemData.behavior != null)
+                        {
+                            slot.ItemData.behavior.Use(_itemUseContext, slot.ItemData);
+                            if (slot.ItemData.consumeOnUse == true)
+                            { 
+                                slot.Remove(slot.ItemData.consumeAmount);
+                            }
+
+                            if (slot.IsEmpty)
+                            {
+                                _inventory.RemoveItem(slot);
+                            }
+                        }
                     }
-                
+                }
             }
         }
     }
 }
+
+        
+            
+        

@@ -23,6 +23,7 @@ namespace _Project.Scripts.Core
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterComponentInHierarchy<PlayerInteractController>();
+            builder.RegisterComponentInHierarchy<EquipmentController>();
             builder.RegisterComponentInHierarchy<InputManager>();
             builder.RegisterComponentInHierarchy<InventoryController>();
             builder.RegisterComponentInHierarchy<InventoryUI>();

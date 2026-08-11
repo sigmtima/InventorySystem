@@ -13,6 +13,7 @@ namespace _Project.Scripts.Inventory
 
         public void Init(ItemData itemData, int count)
         {
+            IsEmpty = false;
             ItemData = itemData;
             Count = count;
         }
@@ -30,11 +31,12 @@ namespace _Project.Scripts.Inventory
             
         public void Remove(int amount)
         {
-            Count -= amount;
-            if (Count <= 0)
+            Count = Mathf.Max(0, Count - amount);
+            if (Count == 0)
             {
                 IsEmpty = true;
             }
+            OnSlotChanged?.Invoke(Count);
         }
         
     }

@@ -38,8 +38,8 @@ namespace _Project.Scripts.Inventory
 
                 var inventorySlot = new InventorySlot();
                 inventorySlot.Init(itemData, amount);
-                OnItemAdded?.Invoke(inventorySlot, amount);
                 _inventorySlots.Add(inventorySlot);
+                OnItemAdded?.Invoke(inventorySlot, amount);
 
                 remaining -= amount;
             }
@@ -47,6 +47,7 @@ namespace _Project.Scripts.Inventory
 
         public void RemoveItem(InventorySlot slot)
         {
+            
             _inventorySlots.Remove(slot);
             OnItemRemoved?.Invoke();
 

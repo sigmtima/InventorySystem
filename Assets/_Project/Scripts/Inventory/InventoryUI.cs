@@ -8,7 +8,7 @@ namespace _Project.Scripts.Inventory
     public class InventoryUI : MonoBehaviour
     {
         [SerializeField] private List<SlotUI> slots;
-        public event System.Action<int> OnSelected;
+        public event System.Action<SlotUI> OnSelected;
         private Inventory _inventory;
 
         [Inject]
@@ -36,10 +36,9 @@ namespace _Project.Scripts.Inventory
             }
         }
 
-        public void Selected()
+        public void Selected(SlotUI slot)
         {
-            //Тут визуальная логика
-            //  OnSelected?.Invoke();
+            OnSelected?.Invoke(slot);
         }
 
         public void AddSlot(InventorySlot slot, int count)
