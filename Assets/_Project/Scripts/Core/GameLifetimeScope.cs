@@ -22,6 +22,7 @@ namespace _Project.Scripts.Core
         
         protected override void Configure(IContainerBuilder builder)
         {
+            builder.RegisterComponentInHierarchy<DamageFlashUI>();
             builder.RegisterComponentInHierarchy<PlayerInteractController>();
             builder.RegisterComponentInHierarchy<EquipmentController>();
             builder.RegisterComponentInHierarchy<InputManager>();

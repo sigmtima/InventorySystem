@@ -11,7 +11,6 @@ namespace _Project.Scripts.Inventory
         public event System.Action<SlotUI> OnSelected;
         [SerializeField] private Image image;
          [SerializeField] private TMPro.TextMeshProUGUI itemCount;
-        private Sprite _itemIcon;
         public InventorySlot InventorySlot => _itemSlot;
        public bool IsBusy { get;  private set; } = false;
         public void OnClick()
@@ -26,29 +25,43 @@ namespace _Project.Scripts.Inventory
         public void Render(InventorySlot slot, int count)
         {
             image.sprite = slot.ItemData.itemIcon;
-            _itemIcon = slot.ItemData.itemIcon;
             itemCount.text = count.ToString();
             IsBusy = true;
         }
 
         public void Initialize(InventorySlot slot, int count)
         {
-            _itemSlot = slot;
-            Render(slot, count);
-            _itemSlot.OnSlotChanged += ChangeText;
-        }
+            if (_itemSlot != null)
+                _itemSlot.OnSlotChanged -= ChangeText;
 
+            _itemSlot = slot;
+
+            Render(slot, count);
+
+            if (_itemSlot != null)
+                _itemSlot.OnSlotChanged += ChangeText;
+        }
         public void UnRender()
         {
             image.sprite = null;
-            _itemIcon = null;
             itemCount.text = "";
             IsBusy = false;
-            _itemSlot.OnSlotChanged -= ChangeText;
+            if (_itemSlot != null)
+            {
+                _itemSlot.OnSlotChanged -= ChangeText;
+            }
         }
+
+        public void Remove()
+        {  
+            UnRender();
+            _itemSlot = null;
+          
+        }
+        
         public void ChangeText(int count)
         {
-            itemCount.text = count.ToString();
+            itemCount.SetText("{0}", count);
         }
         public void OnDisable()
         {

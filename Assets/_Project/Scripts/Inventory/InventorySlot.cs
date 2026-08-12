@@ -32,10 +32,7 @@ namespace _Project.Scripts.Inventory
         public void Remove(int amount)
         {
             Count = Mathf.Max(0, Count - amount);
-            if (Count == 0)
-            {
-                IsEmpty = true;
-            }
+            IsEmpty = Count == 0;
             OnSlotChanged?.Invoke(Count);
         }
         

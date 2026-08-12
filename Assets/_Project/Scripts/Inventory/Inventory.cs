@@ -10,16 +10,22 @@ namespace _Project.Scripts.Inventory
         private readonly List<InventorySlot>  _inventorySlots = new();
        public IReadOnlyList<InventorySlot> Slots => _inventorySlots;
         
-        public event Action<InventorySlot, int> OnItemAdded;
-        public event Action OnItemRemoved;
+        public event Action<InventorySlot, int> OnSlotCreated;
+        public event Action<InventorySlot> OnItemRemoved;
         public event Action<int, int> OnSlotsSwapped;
 
 
         public void AddItem( ItemData itemData, int count)
         {
+            if (count <= 0)
+                return;
             int remaining = count;
 
-
+            if (itemData.maxStack <= 0)
+            {
+                Debug.LogError("Max stack amount must be greater than zero");
+                return;
+            }
             foreach (var inventorySlot in _inventorySlots)
             {
                 if (inventorySlot.ItemData != itemData)
@@ -39,7 +45,7 @@ namespace _Project.Scripts.Inventory
                 var inventorySlot = new InventorySlot();
                 inventorySlot.Init(itemData, amount);
                 _inventorySlots.Add(inventorySlot);
-                OnItemAdded?.Invoke(inventorySlot, amount);
+                OnSlotCreated?.Invoke(inventorySlot, amount);
 
                 remaining -= amount;
             }
@@ -47,10 +53,12 @@ namespace _Project.Scripts.Inventory
 
         public void RemoveItem(InventorySlot slot)
         {
-            
-            _inventorySlots.Remove(slot);
-            OnItemRemoved?.Invoke();
-
+            if (slot == null)
+                return;
+            if (_inventorySlots.Remove(slot))
+            {
+                OnItemRemoved?.Invoke(slot);
+            }
         }
 
         public InventorySlot GetItem(int slotIndex)

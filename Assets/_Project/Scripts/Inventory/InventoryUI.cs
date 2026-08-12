@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
 using VContainer;
@@ -20,7 +21,8 @@ namespace _Project.Scripts.Inventory
 
         public void OnEnable()
         {
-            _inventory.OnItemAdded += AddSlot;
+            _inventory.OnSlotCreated += AddSlot;
+            _inventory.OnItemRemoved += RemoveSlot;
             foreach (var slot in slots)
             {
                 slot.OnSelected += Selected;
@@ -29,7 +31,8 @@ namespace _Project.Scripts.Inventory
 
         public void OnDisable()
         {
-            _inventory.OnItemAdded -= AddSlot;
+            _inventory.OnSlotCreated -= AddSlot;
+            _inventory.OnItemRemoved -= RemoveSlot;
             foreach (var slot in slots)
             {
                 slot.OnSelected -= Selected;
@@ -39,6 +42,16 @@ namespace _Project.Scripts.Inventory
         public void Selected(SlotUI slot)
         {
             OnSelected?.Invoke(slot);
+        }
+
+        private void RemoveSlot(InventorySlot slot)
+        {
+            if (slot == null) return;
+            foreach (var slotUI in slots.Where(slotUI => slotUI.InventorySlot == slot))
+            {
+                slotUI.Remove();
+                return;
+            }
         }
 
         public void AddSlot(InventorySlot slot, int count)

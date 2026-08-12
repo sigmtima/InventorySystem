@@ -61,6 +61,7 @@ namespace _Project.Scripts.Inventory
                             if (slot.IsEmpty)
                             {
                                 _inventory.RemoveItem(slot);
+                                slotUI.UnRender();
                             }
                         }
                     }

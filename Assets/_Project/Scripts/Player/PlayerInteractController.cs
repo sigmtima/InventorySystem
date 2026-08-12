@@ -24,18 +24,26 @@ namespace _Project.Scripts.Player
 
         public void OnDisable()
         {
-            _inputManager.OnInteract -= TryInteract;
+            if (_inputManager != null)
+            {
+                _inputManager.OnInteract -= TryInteract;
+            }
         }
 
         private void TryInteract()
         {
-            Collider[] results = Physics.OverlapSphere(interactOrigin.position, viewRadius, interactLayer);
+            Collider[] results = new Collider[10];
+            var size = Physics.OverlapSphereNonAlloc(interactOrigin.position, viewRadius, results, interactLayer);
 
             ICollectible closestInteractable = null;
             float minDistance = float.MaxValue;
 
-            foreach (Collider item in results)
+            for (int i = 0; i < size; i++)
             {
+                Collider item = results[i];
+
+                if (item.transform == transform) continue;
+
                 Vector3 direction = item.transform.position - transform.position;
                 direction.y = 0;
                 direction = direction.normalized;
@@ -75,6 +83,7 @@ namespace _Project.Scripts.Player
                 OnCollect?.Invoke(data, count);
             }
         }
+
     }
 }
 
