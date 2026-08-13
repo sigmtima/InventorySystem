@@ -23,6 +23,7 @@ namespace _Project.Scripts.Inventory
         {
             _inventory.OnSlotCreated += AddSlot;
             _inventory.OnItemRemoved += RemoveSlot;
+            _inventory.OnSlotsSwapped += Swap;
             foreach (var slot in slots)
             {
                 slot.OnSelected += Selected;
@@ -33,6 +34,7 @@ namespace _Project.Scripts.Inventory
         {
             _inventory.OnSlotCreated -= AddSlot;
             _inventory.OnItemRemoved -= RemoveSlot;
+            _inventory.OnSlotsSwapped -= Swap;
             foreach (var slot in slots)
             {
                 slot.OnSelected -= Selected;
@@ -64,6 +66,14 @@ namespace _Project.Scripts.Inventory
                     break;
                 }
             }
+        }
+
+        public void Swap(int index1, int index2)
+        {
+           InventorySlot slot1 = _inventory.GetItem(index1);
+           InventorySlot slot2 = _inventory.GetItem(index2);
+           slot1.Init(slot2.ItemData, slot2.Count);
+           slot2.Init(slot1.ItemData, slot1.Count);
         }
     }
 }

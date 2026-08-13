@@ -14,9 +14,18 @@ namespace _Project.Scripts.Inventory
         public event Action<InventorySlot> OnItemRemoved;
         public event Action<int, int> OnSlotsSwapped;
 
+        private bool _isCreatedInventorySlots;
+        
+
 
         public void AddItem( ItemData itemData, int count)
         {
+            if(_isCreatedInventorySlots == false)
+            for (int i = 0; i < 20; i++)
+            {
+                _inventorySlots.Add(new InventorySlot());
+                _isCreatedInventorySlots = true;
+            }
             if (count <= 0)
                 return;
             int remaining = count;
@@ -64,6 +73,10 @@ namespace _Project.Scripts.Inventory
         public InventorySlot GetItem(int slotIndex)
         {
             return _inventorySlots[slotIndex];
+        }
+        public int GetSlotIndex(InventorySlot slot)
+        {
+            return _inventorySlots.IndexOf(slot);
         }
 
         public void Swap(int toIndex, int fromIndex)

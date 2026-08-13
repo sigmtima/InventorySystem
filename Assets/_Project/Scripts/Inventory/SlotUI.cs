@@ -1,18 +1,26 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using VContainer;
 
 namespace _Project.Scripts.Inventory
 {
-    public class SlotUI : MonoBehaviour
+    public class SlotUI : MonoBehaviour, IBeginDragHandler,
+    IDragHandler,
+    IEndDragHandler,
+    IDropHandler
     {
         private bool _isSelected;
         private InventorySlot _itemSlot;
+     
         public event System.Action<SlotUI> OnSelected;
         [SerializeField] private Image image;
          [SerializeField] private TMPro.TextMeshProUGUI itemCount;
         public InventorySlot InventorySlot => _itemSlot;
+        private DragDropController _dragDropController;
        public bool IsBusy { get;  private set; } = false;
+       public int Index { get; private set; }
         public void OnClick()
         {
             _isSelected = !_isSelected;
@@ -22,6 +30,12 @@ namespace _Project.Scripts.Inventory
             }
         }
 
+        [Inject]
+        private void Construct(DragDropController dragDropController)
+        {
+            _dragDropController = dragDropController;
+        }
+
         public void Render(InventorySlot slot, int count)
         {
             image.sprite = slot.ItemData.itemIcon;
@@ -29,17 +43,18 @@ namespace _Project.Scripts.Inventory
             IsBusy = true;
         }
 
-        public void Initialize(InventorySlot slot, int count)
+       
+        public void Initialize(
+            InventorySlot slot,
+            int count
+           )
         {
-            if (_itemSlot != null)
-                _itemSlot.OnSlotChanged -= ChangeText;
-
             _itemSlot = slot;
+        
 
             Render(slot, count);
 
-            if (_itemSlot != null)
-                _itemSlot.OnSlotChanged += ChangeText;
+            _itemSlot.OnSlotChanged += ChangeText;
         }
         public void UnRender()
         {
@@ -69,6 +84,26 @@ namespace _Project.Scripts.Inventory
             {
                 _itemSlot.OnSlotChanged -= ChangeText;
             }
+        }
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            if (!IsBusy)
+                return;
+
+            // Запоминаем, что именно тащим
+            _dragDropController.StartDrag(this);
+        }
+        public void OnDrag(PointerEventData eventData)
+        {
+            _dragDropController.Drag(eventData.position);
+        }
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            _dragDropController.EndDrag();
+        }
+        public void OnDrop(PointerEventData eventData)
+        {
+            _dragDropController.Drop(this);
         }
     }
   

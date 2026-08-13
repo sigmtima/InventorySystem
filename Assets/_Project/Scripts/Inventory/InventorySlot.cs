@@ -28,7 +28,12 @@ namespace _Project.Scripts.Inventory
                 return Math.Max(0, total - max); 
                
             }
-            
+        public void Clear()
+        {
+            ItemData = null;
+            Count = 0;
+        }
+        
         public void Remove(int amount)
         {
             Count = Mathf.Max(0, Count - amount);
