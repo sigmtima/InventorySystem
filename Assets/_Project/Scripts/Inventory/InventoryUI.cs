@@ -21,18 +21,20 @@ namespace _Project.Scripts.Inventory
 
         public void OnEnable()
         {
-            _inventory.OnSlotCreated += AddSlot;
+          
             _inventory.OnItemRemoved += RemoveSlot;
             _inventory.OnSlotsSwapped += Swap;
+           
             foreach (var slot in slots)
             {
                 slot.OnSelected += Selected;
             }
+            Refresh();
         }
 
         public void OnDisable()
         {
-            _inventory.OnSlotCreated -= AddSlot;
+           
             _inventory.OnItemRemoved -= RemoveSlot;
             _inventory.OnSlotsSwapped -= Swap;
             foreach (var slot in slots)
@@ -55,25 +57,26 @@ namespace _Project.Scripts.Inventory
                 return;
             }
         }
-
-        public void AddSlot(InventorySlot slot, int count)
+        
+        private void Refresh()
         {
-            foreach (var slotUI in slots)
+            for (int i = 0; i < slots.Count; i++)
             {
-                if (slotUI.IsBusy == false)
+                InventorySlot inventorySlot = _inventory.GetItem(i);
+
+                if (inventorySlot.IsEmpty)
                 {
-                    slotUI.Initialize(slot, count);
-                    break;
+                    slots[i].Remove();
+                }
+                else
+                {
+                    slots[i].Initialize(inventorySlot, inventorySlot.Count);
                 }
             }
         }
-
-        public void Swap(int index1, int index2)
+        public void Swap(int slot1, int slot2)
         {
-           InventorySlot slot1 = _inventory.GetItem(index1);
-           InventorySlot slot2 = _inventory.GetItem(index2);
-           slot1.Init(slot2.ItemData, slot2.Count);
-           slot2.Init(slot1.ItemData, slot1.Count);
+            Refresh();
         }
     }
 }

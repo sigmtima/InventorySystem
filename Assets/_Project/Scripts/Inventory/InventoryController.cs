@@ -12,6 +12,7 @@ namespace _Project.Scripts.Inventory
         private ItemUseContext _itemUseContext;
         private PlayerInteractController _playerInteractController;
         private EquipmentController _equipmentController;
+        [SerializeField] private int slotsCount;
 
         [Inject]
         public void Construct(Inventory inventory, ItemUseContext itemUseContext,
@@ -21,6 +22,7 @@ namespace _Project.Scripts.Inventory
             _inventory = inventory;
             _itemUseContext = itemUseContext;
             _playerInteractController = playerInteractController;
+            _inventory.SlotsCount = slotsCount;
         }
 
         public void OnEnable()

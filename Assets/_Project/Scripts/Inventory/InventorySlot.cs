@@ -16,6 +16,8 @@ namespace _Project.Scripts.Inventory
             IsEmpty = false;
             ItemData = itemData;
             Count = count;
+
+            OnSlotChanged?.Invoke(Count);
         }
         
         public int Add(int amount)
@@ -32,6 +34,8 @@ namespace _Project.Scripts.Inventory
         {
             ItemData = null;
             Count = 0;
+            IsEmpty = true;
+            OnSlotChanged?.Invoke(0);
         }
         
         public void Remove(int amount)

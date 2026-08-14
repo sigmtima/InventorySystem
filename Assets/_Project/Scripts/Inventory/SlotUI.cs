@@ -44,13 +44,18 @@ namespace _Project.Scripts.Inventory
         }
 
        
-        public void Initialize(
-            InventorySlot slot,
-            int count
-           )
+        public void Initialize(InventorySlot slot, int count)
         {
+            if (_itemSlot != null)
+                _itemSlot.OnSlotChanged -= ChangeText;
+
             _itemSlot = slot;
-        
+
+            if (_itemSlot == null)
+            {
+                Remove();
+                return;
+            }
 
             Render(slot, count);
 

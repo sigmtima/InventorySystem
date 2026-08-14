@@ -1,62 +1,81 @@
- using System;
+using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace _Project.Scripts.Inventory
 {
     public class Inventory
     {
-        private readonly List<InventorySlot>  _inventorySlots = new();
-       public IReadOnlyList<InventorySlot> Slots => _inventorySlots;
+        private readonly List<InventorySlot> _inventorySlots = new();
+
+        public IReadOnlyList<InventorySlot> Slots => _inventorySlots;
         
-        public event Action<InventorySlot, int> OnSlotCreated;
         public event Action<InventorySlot> OnItemRemoved;
         public event Action<int, int> OnSlotsSwapped;
 
-        private bool _isCreatedInventorySlots;
-        
+        public int SlotsCount;
 
-
-        public void AddItem( ItemData itemData, int count)
+        public Inventory(int slotsCount)
         {
-            if(_isCreatedInventorySlots == false)
-            for (int i = 0; i < 20; i++)
+            SlotsCount = slotsCount;
+
+            for (int i = 0; i < SlotsCount; i++)
             {
                 _inventorySlots.Add(new InventorySlot());
-                _isCreatedInventorySlots = true;
             }
+        }
+
+        public void AddItem(ItemData itemData, int count)
+        {
+            if (itemData == null)
+            {
+                Debug.LogError("ItemData is null.");
+                return;
+            }
+
             if (count <= 0)
                 return;
-            int remaining = count;
 
             if (itemData.maxStack <= 0)
             {
-                Debug.LogError("Max stack amount must be greater than zero");
+                Debug.LogError("Max stack amount must be greater than zero.");
                 return;
             }
-            foreach (var inventorySlot in _inventorySlots)
+
+            int remaining = count;
+
+    
+            foreach (var slot in _inventorySlots)
             {
-                if (inventorySlot.ItemData != itemData)
+                if (slot.IsEmpty || slot.ItemData != itemData)
                     continue;
 
-                if (remaining <= 0)
-                    break;
+                remaining = slot.Add(remaining);
 
-                remaining = inventorySlot.Add(remaining);
+                if (remaining <= 0)
+                    return;
             }
 
-
-            while (remaining > 0)
+            
+            foreach (var slot in _inventorySlots)
             {
+                if (!slot.IsEmpty)
+                    continue;
+
                 int amount = Math.Min(remaining, itemData.maxStack);
 
-                var inventorySlot = new InventorySlot();
-                inventorySlot.Init(itemData, amount);
-                _inventorySlots.Add(inventorySlot);
-                OnSlotCreated?.Invoke(inventorySlot, amount);
+                slot.Init(itemData, amount);
+                
 
                 remaining -= amount;
+
+                if (remaining <= 0)
+                    return;
+            }
+
+            if (remaining > 0)
+            {
+                Debug.Log("Inventory is full.");
             }
         }
 
@@ -64,25 +83,49 @@ namespace _Project.Scripts.Inventory
         {
             if (slot == null)
                 return;
-            if (_inventorySlots.Remove(slot))
-            {
-                OnItemRemoved?.Invoke(slot);
-            }
+
+            int index = _inventorySlots.IndexOf(slot);
+
+            if (index == -1)
+                return;
+
+            slot.Clear();
+
+            OnItemRemoved?.Invoke(slot);
         }
 
-        public InventorySlot GetItem(int slotIndex)
+        public InventorySlot GetItem(int index)
         {
-            return _inventorySlots[slotIndex];
+            return _inventorySlots[index];
         }
+
         public int GetSlotIndex(InventorySlot slot)
         {
             return _inventorySlots.IndexOf(slot);
         }
 
-        public void Swap(int toIndex, int fromIndex)
+        public void Swap(int firstIndex, int secondIndex)
         {
-         (_inventorySlots[fromIndex], _inventorySlots[toIndex]) = (_inventorySlots[toIndex], _inventorySlots[fromIndex]);
-         OnSlotsSwapped?.Invoke(fromIndex, toIndex);
+            if (firstIndex < 0 || firstIndex >= _inventorySlots.Count)
+                return;
+
+            if (secondIndex < 0 || secondIndex >= _inventorySlots.Count)
+                return;
+
+            if (firstIndex == secondIndex)
+                return;
+
+            (
+                _inventorySlots[firstIndex],
+                _inventorySlots[secondIndex]
+            ) = (
+                _inventorySlots[secondIndex],
+                _inventorySlots[firstIndex]
+            );
+
+            OnSlotsSwapped?.Invoke(firstIndex, secondIndex);
         }
+
+     
     }
 }
