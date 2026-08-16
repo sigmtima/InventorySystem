@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
@@ -15,23 +16,29 @@ namespace _Project.Scripts.Inventory
         public void Construct(InventoryUI inventoryUI)
         {
             _inventoryUI = inventoryUI;
+            if (_inventoryUI == null)
+            {
+                Debug.LogError("EquipmentController: InventoryUI is null!");
+                return;
+            }
         }
 
         public void OnEnable()
         {
-            _inventoryUI.OnSelected+= Init;
+            if (_inventoryUI != null)
+               _inventoryUI.OnSelected+= Init;
         }
 
         public void OnDisable()
         {
-            _inventoryUI.OnSelected-= Init;
+            if (_inventoryUI != null)
+                _inventoryUI.OnSelected-= Init;
         }
 
         public void Init(SlotUI slotUI)
         {
             if (slotUI != null)
             {
-
                 _currentItemSlotUI = slotUI;
                 frame.transform.position = _currentItemSlotUI.transform.position;
             }
@@ -44,7 +51,11 @@ namespace _Project.Scripts.Inventory
                 
              OnEquipped?.Invoke(_currentItemSlotUI); 
             }
-            
+
+            if (_currentItemSlotUI == null)
+            {
+                Debug.LogError("EquipmentController: CurrentItemSlotUI is null!");
+            }
         }
     }
 }

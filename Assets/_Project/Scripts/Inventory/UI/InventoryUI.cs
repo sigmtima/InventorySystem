@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 using VContainer;
@@ -11,30 +12,46 @@ namespace _Project.Scripts.Inventory
         [SerializeField] private List<SlotUI> slots;
         public event System.Action<SlotUI> OnSelected;
         private Inventory _inventory;
+        private DragDropController _dragDropController;
 
         [Inject]
-        public void Construct(Inventory inventory)
+        public void Construct(
+            Inventory inventory,
+            DragDropController dragDropController)
         {
             _inventory = inventory;
+            _dragDropController = dragDropController;
+            foreach (var slot in slots)
+            {
+                slot.GetDragDrop(_dragDropController);
+            }
         }
 
 
-        public void OnEnable()
+        private void OnEnable()
         {
-          
+            if (_inventory == null)
+                return;
+
+            _inventory.OnInventoryChanged += AddSlot;
             _inventory.OnItemRemoved += RemoveSlot;
             _inventory.OnSlotsSwapped += Swap;
-           
+
             foreach (var slot in slots)
-            {
                 slot.OnSelected += Selected;
-            }
+
+            Refresh();
+        }
+        public void AddSlot(InventorySlot slot)
+        {
+            Debug.Log("ADD SLOT");
+
             Refresh();
         }
 
         public void OnDisable()
         {
-           
+            _inventory.OnInventoryChanged -= AddSlot;
             _inventory.OnItemRemoved -= RemoveSlot;
             _inventory.OnSlotsSwapped -= Swap;
             foreach (var slot in slots)
@@ -60,10 +77,16 @@ namespace _Project.Scripts.Inventory
         
         private void Refresh()
         {
+            if (slots.Count != _inventory.SlotsCount)
+            {
+                Debug.LogError(
+                    $"InventoryUI: UI slots = {slots.Count}, " +
+                    $"Inventory slots = {_inventory.SlotsCount}");
+            }
             for (int i = 0; i < slots.Count; i++)
             {
                 InventorySlot inventorySlot = _inventory.GetItem(i);
-
+                slots[i].SetIndex(i);
                 if (inventorySlot.IsEmpty)
                 {
                     slots[i].Remove();

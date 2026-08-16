@@ -80,6 +80,7 @@ namespace _Project.Scripts.Player
             {
                 ItemData data = closestInteractable.CollectData();
                 int count = closestInteractable.CollectCount();
+                Debug.Log("Добавляем предмет!");
                 OnCollect?.Invoke(data, count);
             }
         }

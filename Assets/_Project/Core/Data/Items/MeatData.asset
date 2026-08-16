@@ -10,13 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eab3095918988ad478bfc9c889eb31a1, type: 3}
-  m_Name: AppleData
+  m_Name: MeatData
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Scripts.Inventory.ItemFoodData
-  itemID: 1
+  itemID: 2
   itemIcon: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
-  itemType: 1
+  itemType: 0
   maxStack: 20
-  behavior: {fileID: 11400000, guid: d8441c97f96b3eb44bc983301d134369, type: 2}
+  behavior:
+    rid: -2
   consumeOnUse: 0
   consumeAmount: 1
-  hungerRestore: 40
+  hungerRestore: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }

@@ -1,78 +1,181 @@
-# Inventory System
+# Unity Inventory System
 
-A modular inventory system developed in Unity with a focus on clean architecture, separation of responsibilities, and data-driven design.
+A modular, data-driven inventory system for Unity built with C#, ScriptableObjects, events, and VContainer.
 
-📸 Screenshots
-Screenshots will be added as the project progresses.
+Designed as a reusable gameplay system with clear separation between runtime state, item definitions, UI, and persistence.
 
-🎥 GIFs / Demonstrations
-Gameplay demonstrations and system GIFs will be added here.
+## Features
 
-✨ Current Features
-- Item pickup through player interaction
-- Inventory data management & customizable slots
-- Item stacking with configurable maximum stack size
-- ScriptableObject-based item data
-- Item behaviors decoupled from inventory logic
-- `ItemUseContext` for providing gameplay dependencies to items
-- Event-driven communication between inventory and UI
-- Visual item icons and stack count rendering
+- **Slot-based inventory** — configurable slot count, stacking, item removal, and slot swapping.
+- **ScriptableObject items** — reusable item definitions with IDs, icons, stack limits, and usage configuration.
+- **Polymorphic item behavior** — extend `ItemBehavior` to add new item types without modifying the inventory core.
+- **Event-driven UI** — inventory and slot state changes are propagated through events.
+- **Drag & Drop** — dedicated controller for moving items between slots.
+- **Item selection & usage** — UI-driven item selection with behavior-based execution.
+- **JSON persistence** — save/load inventory state using stable item IDs instead of Unity object references.
+- **Item database** — centralized ID → `ItemData` resolution for persistence.
+- **Dependency injection** — VContainer manages runtime dependencies and keeps the inventory model independent from `MonoBehaviour`.
 
-🏗️ Architecture
-The inventory is structured into decoupled layers:
+## Architecture
 
-Player
-  ↓
-PlayerInteractController
-  ↓
-ICollectible
-  ↓
-InventoryController
-  ↓
-Inventory
-  ↓
-InventorySlot
-  ↓
-Inventory UI
+```text
+                         ItemDatabase
+                              │
+                              ▼
+                          ItemData
+                              │
+                    ┌─────────┴─────────┐
+                    ▼                   ▼
+              ItemBehavior        ItemFoodData
+                    │
+                    ▼
+               Inventory
+                    │
+                    ▼
+             InventorySlot
+                    │
+          ┌─────────┴─────────┐
+          ▼                   ▼
+    InventoryUI          SaveLoadManager
+          │
+          ▼
+        SlotUI
+          │
+          ▼
+ DragDropController
+```
 
-- **Inventory:** Stores inventory slots and manages adding, removing, and swapping items.
-- **InventorySlot:** Represents a stack of a specific item, tracking current amount and item data.
-- **ItemData:** ScriptableObject containing static metadata (ID, type, icon, max stack, behavior reference).
-- **ItemBehavior:** Defines item-specific usage logic without polluting core inventory classes.
-- **InventoryController:** Main entry point for inventory gameplay operations (picking up, using items).
-- **InventoryUI:** Handles UI rendering driven by inventory events.
+### Core responsibilities
 
-💡 Why This Architecture?
-- **Lightweight DI:** I chose **VContainer** over heavier frameworks like Zenject because it provides high performance, minimal boilerplate, and fits perfectly into modern Unity architectures.
-- **Pure Data vs. Behavior:** Separating `ItemBehavior` from `ItemData` keeps ScriptableObjects as clean data containers. This avoids monolithic scripts, eliminates spaghetti dependencies, and lets me add new item types without modifying existing inventory code.
+| Component | Responsibility |
+|---|---|
+| `Inventory` | Runtime inventory state, stacking, removal, swapping |
+| `InventorySlot` | Item reference, stack count, slot-level change events |
+| `ItemData` | Static item configuration |
+| `ItemBehavior` | Polymorphic item usage logic |
+| `ItemDatabase` | Item ID → `ItemData` lookup |
+| `InventoryUI` | Synchronizes inventory state with slot UI |
+| `SlotUI` | Item rendering, selection, pointer/drag events |
+| `DragDropController` | Drag visualization and slot swapping |
+| `SaveLoadManager` | JSON serialization and restoration |
 
-🧠 Challenges & Lessons Learned
-- **The Problem (Context & Dependencies):** A major challenge during architecture design was figuring out how isolated items should execute their behavior. Items needed access to external gameplay systems (e.g., player stats for healing, sound managers, or world effects), but hardcoding scene references or relying on global Singletons would destroy modularity and testability.
-- **The Solution (`ItemUseContext`):** I designed an `ItemUseContext` structure. When an item is used, the caller creates a contextual payload containing only the required dependencies and passes it down to the `ItemBehavior`. This keeps items completely decoupled from scene architecture while giving them safe access to gameplay systems.
+The runtime model is kept separate from Unity UI objects. Item definitions are stored as ScriptableObjects, while save data contains only serializable runtime state.
 
-📦 Item Stacking
-Items can be added in arbitrary quantities.
-For example, if an item has a maximum stack size of 10 and the player receives 27 items:
+## Item System
 
-[10] [10] [7]
+Items are defined through ScriptableObjects. Specialized data can extend `ItemData` without changing the inventory implementation.
 
-Existing compatible stacks are filled before creating new ones.
+```csharp
+[CreateAssetMenu(fileName = "ItemFoodData", menuName = "Inventory/ItemFoodData")]
+public class ItemFoodData : ItemData
+{
+    public int hungerRestore;
+}
+```
 
-🛠️ Tech Stack
-- **Engine:** Unity
-- **Language:** C#
-- **Architecture:** Event-driven, Data-driven (ScriptableObjects), Dependency Injection
-- **Packages:** Unity Input System, VContainer
+Usage behavior is separated from item data through `ItemBehavior`:
 
-🎯 Planned Features
-- Item selection & hotbar usage
-- Item usage through UI
-- Drag & Drop support
-- Equipment system
-- Inventory updates and synchronization
-- Save / Load system
-- Crafting system
+```csharp
+public abstract class ItemBehavior : ScriptableObject
+{
+    public abstract void Use(ItemUseContext context, ItemData data);
+}
+```
 
-📊 Project Status
-🚧 **In Development**
-Developed as a portfolio project focused on architecture scalability, C# design patterns, modularity, and clean code principles.
+This allows new behaviors to be added independently from the inventory core.
+
+## Save Format
+
+Inventory state is serialized as item IDs and stack counts:
+
+```json
+{
+    "slots": [
+        {
+            "itemID": 1,
+            "count": 5
+        },
+        {
+            "itemID": -1,
+            "count": 0
+        }
+    ]
+}
+```
+
+`ItemDatabase` resolves the saved IDs back to `ItemData` during loading.
+
+This avoids serializing Unity object references such as `ScriptableObject` assets or sprites.
+
+## Project Structure
+
+```text
+Inventory/
+│
+├── Inventory.cs
+├── InventorySlot.cs
+├── InventoryController.cs
+│
+├── UI/
+│   ├── InventoryUI.cs
+│   └── SlotUI.cs
+│
+├── Items/
+│   ├── ItemData.cs
+│   ├── ItemFoodData.cs
+│   ├── ItemBehavior.cs
+│   └── FoodBehavior.cs
+│
+├── SaveLoad/
+│   ├── ItemDatabase.cs
+│   ├── SaveLoadManager.cs
+│   └── InventorySaveData.cs
+│
+├── DragDropController.cs
+├── EquipmentController.cs
+└── ItemUseContext.cs
+```
+
+## Dependencies
+
+- Unity
+- TextMeshPro
+- Unity Input System
+- [VContainer](https://vcontainer.hadashikick.jp/)
+
+The current implementation integrates with project-specific player systems such as `PlayerHealth`, `PlayerHunger`, and `PlayerInteractController`.
+
+## Installation
+
+### Unity Package
+
+Ready-to-import `.unitypackage` builds are available in **[Releases](../../releases)**.
+
+### Source
+
+```bash
+git clone <repository-url>
+```
+
+Then import the `Inventory` scripts into your Unity project and configure the required dependencies.
+
+See [`UNITY_SETUP.md`](UNITY_SETUP.md) for scene and dependency configuration.
+
+## Design Goals
+
+- Keep runtime inventory logic independent from UI.
+- Use ScriptableObjects for static item configuration.
+- Use polymorphism instead of type-specific logic in the inventory core.
+- Communicate state changes through events.
+- Keep persistence data independent from Unity object references.
+- Use dependency injection instead of global state where practical.
+
+## Current Scope
+
+The system is currently designed around the inventory requirements of the project it was developed for. Player-specific integrations can be replaced when adapting it to another project.
+
+The repository is focused on the inventory codebase and its reusable Unity package rather than a complete game project.
+
+## License
+
+See the repository license for usage and redistribution terms.

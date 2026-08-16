@@ -8,7 +8,7 @@ namespace _Project.Scripts.Inventory
         public ItemData ItemData { get; private set; }
         public int Count { get; private set; }
         
-        public bool IsEmpty { get; private set; }
+        public bool IsEmpty { get; private set; } = true;
         public event Action<int> OnSlotChanged;
 
         public void Init(ItemData itemData, int count)

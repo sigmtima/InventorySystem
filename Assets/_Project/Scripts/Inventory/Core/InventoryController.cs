@@ -12,7 +12,6 @@ namespace _Project.Scripts.Inventory
         private ItemUseContext _itemUseContext;
         private PlayerInteractController _playerInteractController;
         private EquipmentController _equipmentController;
-        [SerializeField] private int slotsCount;
 
         [Inject]
         public void Construct(Inventory inventory, ItemUseContext itemUseContext,
@@ -22,11 +21,21 @@ namespace _Project.Scripts.Inventory
             _inventory = inventory;
             _itemUseContext = itemUseContext;
             _playerInteractController = playerInteractController;
-            _inventory.SlotsCount = slotsCount;
         }
 
         public void OnEnable()
         {
+            if (_playerInteractController == null)
+            {
+                Debug.LogError("InventoryController: PlayerInteractController is null!");
+                return;
+            }
+
+            if (_equipmentController == null)
+            {
+                Debug.LogError("InventoryController: EquipmentController is null!");
+                return;
+            }
             _playerInteractController.OnCollect += AddItem;
             _equipmentController.OnEquipped += UseItem;
         }
@@ -63,7 +72,6 @@ namespace _Project.Scripts.Inventory
                             if (slot.IsEmpty)
                             {
                                 _inventory.RemoveItem(slot);
-                                slotUI.UnRender();
                             }
                         }
                     }

@@ -11,7 +11,8 @@ namespace _Project.Scripts.Inventory
        public ItemType itemType; 
        public int maxStack;
        [SerializeReference]
-       public ItemBehavior behavior;public bool consumeOnUse;
+       public ItemBehavior behavior;
+       public bool consumeOnUse;
        public int consumeAmount = 1;
     }
 }

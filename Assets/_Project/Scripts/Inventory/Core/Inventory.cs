@@ -13,13 +13,13 @@ namespace _Project.Scripts.Inventory
         public event Action<InventorySlot> OnItemRemoved;
         public event Action<int, int> OnSlotsSwapped;
 
-        public int SlotsCount;
+        public event Action<InventorySlot> OnInventoryChanged;
+        
+        public int SlotsCount => _inventorySlots.Count;
 
         public Inventory(int slotsCount)
         {
-            SlotsCount = slotsCount;
-
-            for (int i = 0; i < SlotsCount; i++)
+            for (int i = 0; i < slotsCount; i++)
             {
                 _inventorySlots.Add(new InventorySlot());
             }
@@ -65,17 +65,13 @@ namespace _Project.Scripts.Inventory
                 int amount = Math.Min(remaining, itemData.maxStack);
 
                 slot.Init(itemData, amount);
-                
+           
+                OnInventoryChanged?.Invoke(slot);
 
                 remaining -= amount;
 
                 if (remaining <= 0)
                     return;
-            }
-
-            if (remaining > 0)
-            {
-                Debug.Log("Inventory is full.");
             }
         }
 
@@ -126,6 +122,6 @@ namespace _Project.Scripts.Inventory
             OnSlotsSwapped?.Invoke(firstIndex, secondIndex);
         }
 
-     
+        
     }
 }

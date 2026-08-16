@@ -37,13 +37,16 @@ namespace _Project.Scripts.Inventory
             if (_draggedSlot == null)
                 return;
 
+            if (targetSlot == null)
+                return;
+
             if (_draggedSlot == targetSlot)
                 return;
-            
-            int fromIndex = _inventory.GetSlotIndex(_draggedSlot.InventorySlot);
-            int toIndex = _inventory.GetSlotIndex(targetSlot.InventorySlot);
 
-            _inventory.Swap(fromIndex, toIndex);
+            _inventory.Swap(
+                _draggedSlot.Index,
+                targetSlot.Index
+            );
         }
         public void EndDrag()
         {

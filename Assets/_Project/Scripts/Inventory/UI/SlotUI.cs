@@ -1,16 +1,15 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
-using VContainer;
 
 namespace _Project.Scripts.Inventory
 {
     public class SlotUI : MonoBehaviour, IBeginDragHandler,
     IDragHandler,
     IEndDragHandler,
-    IDropHandler
+    IDropHandler,  IPointerClickHandler
     {
+    
         private bool _isSelected;
         private InventorySlot _itemSlot;
      
@@ -21,6 +20,11 @@ namespace _Project.Scripts.Inventory
         private DragDropController _dragDropController;
        public bool IsBusy { get;  private set; } = false;
        public int Index { get; private set; }
+
+       public void OnPointerClick(PointerEventData eventData)
+       {
+           OnClick();
+       }
         public void OnClick()
         {
             _isSelected = !_isSelected;
@@ -30,21 +34,36 @@ namespace _Project.Scripts.Inventory
             }
         }
 
-        [Inject]
-        private void Construct(DragDropController dragDropController)
-        {
-            _dragDropController = dragDropController;
-        }
-
         public void Render(InventorySlot slot, int count)
         {
+            if (slot == null)
+            {
+                Debug.LogError("SlotUI.Render: slot is null");
+                return;
+            }
+
+            if (slot.ItemData == null)
+            {
+                Debug.LogError("SlotUI.Render: ItemData is null");
+                return;
+            }
+
+            if (image == null)
+            {
+                Debug.LogError("SlotUI.Render: image is not assigned");
+                return;
+            }
+
             image.sprite = slot.ItemData.itemIcon;
             itemCount.text = count.ToString();
             IsBusy = true;
         }
 
        
-        public void Initialize(InventorySlot slot, int count)
+        public void Initialize(
+            InventorySlot slot,
+            int count
+            )
         {
             if (_itemSlot != null)
                 _itemSlot.OnSlotChanged -= ChangeText;
@@ -58,8 +77,9 @@ namespace _Project.Scripts.Inventory
             }
 
             Render(slot, count);
-
+            
             _itemSlot.OnSlotChanged += ChangeText;
+            Debug.Log("ПРЕДМЕТ ДОБАВЛЕН");
         }
         public void UnRender()
         {
@@ -94,6 +114,7 @@ namespace _Project.Scripts.Inventory
         {
             if (!IsBusy)
                 return;
+            Debug.Log("Drag Started");
 
             // Запоминаем, что именно тащим
             _dragDropController.StartDrag(this);
@@ -109,6 +130,15 @@ namespace _Project.Scripts.Inventory
         public void OnDrop(PointerEventData eventData)
         {
             _dragDropController.Drop(this);
+        }
+
+        public void GetDragDrop(DragDropController dragDrop)
+        {
+            _dragDropController = dragDrop;
+        }
+        public void SetIndex(int index)
+        {
+            Index = index;
         }
     }
   

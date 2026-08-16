@@ -1,4 +1,5 @@
 using _Project.Scripts.Inventory;
+using _Project.Scripts.Inventory.SaveLoad;
 using _Project.Scripts.Player;
 using _Project.Scripts.Player.Health;
 using _Project.Scripts.Player.Hunger;
@@ -19,6 +20,8 @@ namespace _Project.Scripts.Core
         [SerializeField] private PlayerStatsConfig playerStatsConfig;
         [SerializeField] private MovementData movementData;
         [SerializeField] private PlayerHunger playerHunger;
+        [SerializeField] private ItemDatabase itemDatabase;
+        [SerializeField] private int inventorySlotsCount = 10;
         
         protected override void Configure(IContainerBuilder builder)
         {
@@ -28,16 +31,20 @@ namespace _Project.Scripts.Core
             builder.RegisterComponentInHierarchy<InputManager>();
             builder.RegisterComponentInHierarchy<InventoryController>();
             builder.RegisterComponentInHierarchy<InventoryUI>();
-            builder.Register<Inventory.Inventory>(Lifetime.Singleton);
+            builder.Register<Inventory.Inventory>(Lifetime.Singleton)
+                .WithParameter("slotsCount", inventorySlotsCount);
             builder.Register<ItemUseContext>(Lifetime.Singleton);
+            builder.RegisterInstance(itemDatabase);
             builder.Register<RuntimeMovementData>(Lifetime.Singleton);
             builder.RegisterInstance(playerStatsConfig);
             builder.RegisterInstance(movementData);
+            builder.RegisterComponentInHierarchy<DragDropController>();
             builder.RegisterComponentInHierarchy<PlayerController>();
             builder.RegisterComponentInHierarchy<PlayerHunger>();
             builder.RegisterComponentInHierarchy<PlayerHealth>();
             builder.RegisterComponentInHierarchy<PlayerStarvationSystem>();
             builder.RegisterComponentInHierarchy<HungerUI>();
+            builder.RegisterComponentInHierarchy<SaveLoadManager>();
             builder.RegisterComponentInHierarchy<PlayerHealthUI>();
             builder.RegisterComponentInHierarchy<StarvationSpeedDebuff>();
         }
