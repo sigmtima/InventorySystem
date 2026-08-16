@@ -1,28 +1,16 @@
-# Игнорируем вообще всё в проекте Unity по умолчанию
+# Полностью блокируем абсолютно все файлы и папки в репозитории
 *
 
-# Разрешаем Git видеть конфигурационные файлы гита и документацию
+# Разрешаем Git видеть файлы конфигурации и доки в корне
 !.gitignore
 !README.md
 !UNITY_SETUP.md
 
-# Разрешаем Git заходить вглубь папок Assets и _Project
+# Открываем доступ строго к твоим папкам со скриптами
 !Assets/
-!Assets/**
 !Assets/_Project/
-!Assets/_Project/**
+!Assets/_Project/Scripts/
+!Assets/_Project/Scripts/**
 
-# --- ЗДЕСЬ ОТСЕКАЕМ ВСЁ ЛИШНЕЕ И ОСТАВЛЯЕМ ТОЛЬКО НУЖНОЕ ---
-
-# Игнорируем сцены, настройки и мусорные папки Unity внутри _Project
-Assets/_Project/Scenes/
-Assets/_Project/Settings/
-Assets/_Project/TutorialInfo/
-
-# Игнорируем файлы настроек ввода (если они не нужны в пакете)
-Assets/_Project/InputSystem_Actions*
-
-# Игнорируем ВСЕ .meta файлы в проекте, КРОМЕ тех, что внутри папок Core и Scripts
-*.meta
-!Assets/_Project/Core/**.meta
-!Assets/_Project/Scripts/**.meta
+# Разрешаем .meta файлы только для твоих скриптов, чтобы Unity не ломалась
+!*.meta
